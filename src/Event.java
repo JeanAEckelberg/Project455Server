@@ -1,3 +1,7 @@
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -6,10 +10,10 @@ import java.util.TimeZone;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+
 public class Event {
     private final ReentrantReadWriteLock rwIdLock = new ReentrantReadWriteLock();
     private final Lock readIdLock = rwIdLock.readLock();
-    private final Lock writeIdLock = rwIdLock.writeLock();
     private final int id;
 
     private final ReentrantReadWriteLock rwTitleLock = new ReentrantReadWriteLock();
@@ -32,20 +36,30 @@ public class Event {
     private final Lock writeDeadlineLock = rwDeadlineLock.writeLock();
     private Date deadline;
 
-    private final Account account;
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private final Lock readLock = lock.readLock();
+    private final Lock writeLock = lock.writeLock();
+
+    private double balance;
 
 
-
-    public Event(int id, String title, String description, double target, String deadline) throws ParseException {
+    @JsonCreator
+    public Event(@JsonProperty("id") int id,
+                 @JsonProperty("title") String title,
+                 @JsonProperty("description") String description,
+                 @JsonProperty("target") double target,
+                 @JsonProperty("currentAmount") double currentAmount,
+                 @JsonProperty("deadline") String deadline) throws ParseException {
         this.id = id;
         this.title = title;
         this.description = description;
         this.target = target;
         SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         this.deadline = isoFormat.parse(deadline);
-        account = new Account();
+        this.balance = currentAmount;
     }
 
+    @JsonGetter("id")
     public int getId() {
         readIdLock.lock();
         try {
@@ -55,6 +69,7 @@ public class Event {
         }
     }
 
+    @JsonGetter("title")
     public String getTitle() {
         readTitleLock.lock();
         try {
@@ -73,6 +88,7 @@ public class Event {
         }
     }
 
+    @JsonGetter("description")
     public String getDescription() {
         readDescriptionLock.lock();
         try{
@@ -91,6 +107,7 @@ public class Event {
         }
     }
 
+    @JsonGetter("target")
     public double getTarget() {
         readTitleLock.lock();
         try{
@@ -118,6 +135,7 @@ public class Event {
         }
     }
 
+    @JsonGetter("deadline")
     public String getDeadlineString() {
         readDeadlineLock.lock();
         try{
@@ -149,7 +167,24 @@ public class Event {
         }
     }
 
-    public Account getAccount() {
-        return account;
+    @JsonGetter("currentAmount")
+    public double getBalance() {
+        readLock.lock();
+        try {
+            return balance;
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    public void deposit(double amount) {
+        writeLock.lock();
+        try {
+            balance += amount;
+        } catch (Exception ex) {
+            System.err.println(ex);
+        } finally {
+            writeLock.unlock();
+        }
     }
 }

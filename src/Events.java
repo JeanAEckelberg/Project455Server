@@ -24,13 +24,14 @@ public class Events {
                 return false;
 
             Statement s = conn.createStatement();
-            s.execute("CREATE TABLE IF NOT EXISTS event(\n" +
-                    "id INTEGER PRIMARY KEY, \n" +
-                    "title TEXT UNIQUE NOT NULL, \n" +
-                    "description TEXT NOT NULL, \n" +
-                    "target REAL NOT NULL, \n" +
-                    "currentAmount REAL NOT NULL, \n" +
-                    "deadline TEXT NOT NULL)");
+            s.execute("""
+                    CREATE TABLE IF NOT EXISTS event(
+                    id INTEGER PRIMARY KEY,\s
+                    title TEXT UNIQUE NOT NULL,\s
+                    description TEXT NOT NULL,\s
+                    target REAL NOT NULL,\s
+                    currentAmount REAL NOT NULL,\s
+                    deadline TEXT NOT NULL)""");
             return true;
         }
         catch (SQLException ex){
@@ -60,15 +61,14 @@ public class Events {
             ResultSet r = s.executeQuery();
 
             r.next();
-            Event e = new Event(
+            return new Event(
                     r.getInt("id"),
                     r.getString("title"),
                     r.getString("description"),
                     r.getDouble("target"),
+                    r.getDouble("currentAmount"),
                     r.getString("deadline")
             );
-            e.getAccount().deposit(r.getDouble("currentAmount"));
-            return e;
 
         }
         catch (SQLException | ParseException ex){
@@ -96,15 +96,14 @@ public class Events {
             ResultSet r = s.executeQuery();
 
             r.next();
-            Event e = new Event(
+            return new Event(
                     r.getInt("id"),
                     r.getString("title"),
                     r.getString("description"),
                     r.getDouble("target"),
+                    r.getDouble("currentAmount"),
                     r.getString("deadline")
             );
-            e.getAccount().deposit(r.getDouble("currentAmount"));
-            return e;
 
         }
         catch (SQLException | ParseException ex){
@@ -131,17 +130,15 @@ public class Events {
             ResultSet r = s.executeQuery();
 
             ArrayList<Event> toReturn = new ArrayList<>();
-            Event e = null;
-            while(r.next()){
-                e = new Event(
+            while(r.next())
+                toReturn.add(new Event(
                         r.getInt("id"),
                         r.getString("title"),
                         r.getString("description"),
                         r.getDouble("target"),
+                        r.getDouble("currentAmount"),
                         r.getString("deadline")
-                );
-                e.getAccount().deposit(r.getDouble("currentAmount"));
-            }
+                ));
             return toReturn;
         }
         catch (SQLException | ParseException ex){
@@ -169,7 +166,7 @@ public class Events {
             s.setString(2, event.getTitle());
             s.setString(3, event.getDescription());
             s.setDouble(4, event.getTarget());
-            s.setDouble(5, event.getAccount().getBalance());
+            s.setDouble(5, event.getBalance());
             s.setString(6, event.getDeadlineString());
             s.executeUpdate();
             return getEvent(event.getId());
