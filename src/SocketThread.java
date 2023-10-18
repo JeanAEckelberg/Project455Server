@@ -4,7 +4,6 @@ import java.net.*;
 public class SocketThread extends Thread {
     Socket csocket;
     String clientSentence;
-    String capitalizedSentence;
 
     public SocketThread(Socket csocket) {
         this.csocket = csocket;
@@ -13,19 +12,34 @@ public class SocketThread extends Thread {
     public void run() {
         try {
 
-            BufferedReader inFromClient = new BufferedReader(new InputStreamReader(csocket.getInputStream()));
+            BufferedReader inFromClient = new BufferedReader(new InputStreamReader(this.csocket.getInputStream()));
 
+            WriteJsonObject json = new WriteJsonObject();
 
+            DataOutputStream outToClient = new DataOutputStream(this.csocket.getOutputStream());
 
-            DataOutputStream outToClient = new DataOutputStream(csocket.getOutputStream());
+            while ((clientSentence = inFromClient.readLine()) != null) {
+                System.out.println("Input from client: " + clientSentence);
+                Request request = json.deserialize(clientSentence, Request.class);
+                System.out.println("Request Type: " + request.requestType);
+                Response returnResponse = switch (request.requestType){
+                    case CREATE -> EventCreateHandler.handle(request.requestBody);
+                    case EVENT -> EventGetHandler.handle(request.requestBody);
+                    case EVENTS -> EventGetAllHandler.handle();
+                    case DONATE -> DepositHandler.handle(request.requestBody);
+                    case UPDATE -> EventUpdateHandler.handle(request.requestBody);
+                    default -> new Response(ResponseType.ERROR, "No Handler present!!!");
+                };
+                if(returnResponse.responseType == ResponseType.ERROR){
+                    System.err.println("ERROR: " + returnResponse.responseBody);
+                } else{
+                    System.out.println("RETURNING: " + returnResponse.responseBody);
+                }
+                outToClient.writeBytes(json.serialize(returnResponse)+'\n');
+            }
 
-            clientSentence = inFromClient.readLine();
-
-            capitalizedSentence = clientSentence.toUpperCase() + '\n';
-
-            outToClient.writeBytes(capitalizedSentence);
             csocket.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println(e);
         }
     }

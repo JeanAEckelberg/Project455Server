@@ -1,6 +1,7 @@
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -40,7 +41,7 @@ public class Event {
     private final Lock readLock = lock.readLock();
     private final Lock writeLock = lock.writeLock();
 
-    private double balance;
+    private double balance = 0.0;
 
 
     @JsonCreator
@@ -49,7 +50,7 @@ public class Event {
                  @JsonProperty("description") String description,
                  @JsonProperty("target") double target,
                  @JsonProperty("currentAmount") double currentAmount,
-                 @JsonProperty("deadline") String deadline) throws ParseException {
+                 @JsonSetter("deadline") String deadline) throws ParseException {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -109,7 +110,7 @@ public class Event {
 
     @JsonGetter("target")
     public double getTarget() {
-        readTitleLock.lock();
+        readTargetLock.lock();
         try{
             return target;
         } finally {
@@ -181,8 +182,6 @@ public class Event {
         writeLock.lock();
         try {
             balance += amount;
-        } catch (Exception ex) {
-            System.err.println(ex);
         } finally {
             writeLock.unlock();
         }

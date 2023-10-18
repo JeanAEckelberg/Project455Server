@@ -12,10 +12,13 @@ public class Main {
         }
 
         ServerSocket socket = new ServerSocket(6789);
-        System.out.println("The TCP server is on.");
+        System.out.println("The TCP server is on. Your IP is " + InetAddress.getLocalHost().getHostAddress());
+
 
         while (true) {
+            System.out.println("Waiting for connections");
             Socket connectionSocket = socket.accept();
+            System.out.println("Connection Accepted. IP is " + connectionSocket.getInetAddress().getHostAddress());
             new SocketThread(connectionSocket).start();
         }
     }

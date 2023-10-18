@@ -27,7 +27,7 @@ public class Events {
             s.execute("""
                     CREATE TABLE IF NOT EXISTS event(
                     id INTEGER PRIMARY KEY,\s
-                    title TEXT UNIQUE NOT NULL,\s
+                    title TEXT NOT NULL,\s
                     description TEXT NOT NULL,\s
                     target REAL NOT NULL,\s
                     currentAmount REAL NOT NULL,\s
@@ -49,42 +49,7 @@ public class Events {
         }
     }
 
-    public static Event getEvent(String title) {
-        Connection conn = null;
-        try {
-            conn = connect();
-            if (conn == null)
-                return null;
-
-            PreparedStatement s = conn.prepareStatement("SELECT * from event WHERE title = ?");
-            s.setString(1, title);
-            ResultSet r = s.executeQuery();
-
-            r.next();
-            return new Event(
-                    r.getInt("id"),
-                    r.getString("title"),
-                    r.getString("description"),
-                    r.getDouble("target"),
-                    r.getDouble("currentAmount"),
-                    r.getString("deadline")
-            );
-
-        }
-        catch (SQLException | ParseException ex){
-            return null;
-        } finally {
-            try {
-                if (conn != null)
-                    conn.close();
-            } catch (Exception e){
-                System.err.println(e);
-            }
-
-        }
-    }
-
-    public static Event getEvent(int id) {
+    public static Event getEvent(int id) throws SQLException, ParseException {
         Connection conn = null;
         try {
             conn = connect();
@@ -105,10 +70,7 @@ public class Events {
                     r.getString("deadline")
             );
 
-        }
-        catch (SQLException | ParseException ex){
-            return null;
-        } finally {
+        }finally {
             try {
                 if (conn != null)
                     conn.close();
@@ -119,7 +81,7 @@ public class Events {
         }
     }
 
-    public static ArrayList<Event> getEvents() {
+    public static ArrayList<Event> getEvents() throws SQLException, ParseException {
         Connection conn = null;
         try {
             conn = connect();
@@ -140,9 +102,6 @@ public class Events {
                         r.getString("deadline")
                 ));
             return toReturn;
-        }
-        catch (SQLException | ParseException ex){
-            return null;
         } finally {
             try {
                 if (conn != null)
@@ -154,25 +113,51 @@ public class Events {
         }
     }
 
-    public static Event updateEvent(Event event) {
+    public static Event createEvent(Event event) throws SQLException, ParseException {
         Connection conn = null;
         try {
             conn = connect();
             if (conn == null)
                 return null;
 
-            PreparedStatement s = conn.prepareStatement("UPSERT INTO event (id, title, description, target, currentAmount, deadline) VALUES (?, ?, ?, ?, ?, ?)");
-            s.setInt(1, event.getId());
-            s.setString(2, event.getTitle());
-            s.setString(3, event.getDescription());
-            s.setDouble(4, event.getTarget());
-            s.setDouble(5, event.getBalance());
-            s.setString(6, event.getDeadlineString());
+            PreparedStatement s = conn.prepareStatement("INSERT INTO event (title, description, target, currentAmount, deadline) VALUES (?, ?, ?, ?, ?)");
+            s.setString(1, event.getTitle());
+            s.setString(2, event.getDescription());
+            s.setDouble(3, event.getTarget());
+            s.setDouble(4, event.getBalance());
+            s.setString(5, event.getDeadlineString());
+            s.executeUpdate();
+            ResultSet rs = conn.prepareStatement("select last_insert_rowid();").executeQuery();
+            rs.next();
+            int x = rs.getInt("last_insert_rowid()");
+            return getEvent(x);
+        } finally {
+            try {
+                if (conn != null)
+                    conn.close();
+            } catch (Exception e){
+                System.err.println(e);
+            }
+
+        }
+    }
+
+    public static Event updateEvent(Event event) throws ParseException, SQLException {
+        Connection conn = null;
+        try {
+            conn = connect();
+            if (conn == null)
+                return null;
+
+            PreparedStatement s = conn.prepareStatement("UPDATE event SET title = ?, description = ?, target = ?, currentAmount = ?, deadline = ? WHERE id = ?");
+            s.setString(1, event.getTitle());
+            s.setString(2, event.getDescription());
+            s.setDouble(3, event.getTarget());
+            s.setDouble(4, event.getBalance());
+            s.setString(5, event.getDeadlineString());
+            s.setInt(6, event.getId());
             s.executeUpdate();
             return getEvent(event.getId());
-        }
-        catch (SQLException ex){
-            return null;
         } finally {
             try {
                 if (conn != null)
