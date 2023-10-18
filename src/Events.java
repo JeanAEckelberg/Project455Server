@@ -11,7 +11,7 @@ public class Events {
             // create a connection to the database
             return DriverManager.getConnection(url);
         } catch (SQLException e) {
-            System.err.println(e);
+            System.err.println(e.getMessage());
         }
         return null;
     }
@@ -34,8 +34,8 @@ public class Events {
                     deadline TEXT NOT NULL)""");
             return true;
         }
-        catch (SQLException ex){
-            System.err.println(ex);
+        catch (SQLException e){
+            System.err.println(e.getMessage());
             return false;
         }
         finally {
@@ -43,13 +43,14 @@ public class Events {
                 if (conn != null)
                     conn.close();
             } catch (Exception e){
-                System.err.println(e);
+                System.err.println(e.getMessage());
             }
 
         }
     }
 
     public static Event getEvent(int id) throws SQLException, ParseException {
+        // gets an event by its id
         Connection conn = null;
         try {
             conn = connect();
@@ -75,13 +76,14 @@ public class Events {
                 if (conn != null)
                     conn.close();
             } catch (Exception e){
-                System.err.println(e);
+                System.err.println(e.getMessage());
             }
 
         }
     }
 
     public static ArrayList<Event> getEvents() throws SQLException, ParseException {
+        // gets all events from db
         Connection conn = null;
         try {
             conn = connect();
@@ -107,13 +109,14 @@ public class Events {
                 if (conn != null)
                     conn.close();
             } catch (Exception e){
-                System.err.println(e);
+                System.err.println(e.getMessage());
             }
 
         }
     }
 
     public static Event createEvent(Event event) throws SQLException, ParseException {
+        // inserts event into db and retrieves last inserted record
         Connection conn = null;
         try {
             conn = connect();
@@ -136,13 +139,14 @@ public class Events {
                 if (conn != null)
                     conn.close();
             } catch (Exception e){
-                System.err.println(e);
+                System.err.println(e.getMessage());
             }
 
         }
     }
 
     public static Event updateEvent(Event event) throws ParseException, SQLException {
+        // updates record for an event
         Connection conn = null;
         try {
             conn = connect();
@@ -163,7 +167,7 @@ public class Events {
                 if (conn != null)
                     conn.close();
             } catch (Exception e){
-                System.err.println(e);
+                System.err.println(e.getMessage());
             }
 
         }

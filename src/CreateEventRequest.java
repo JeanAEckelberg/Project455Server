@@ -1,8 +1,8 @@
-import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CreateEventRequest {
+    // request object for creating an event
     public String title;
     public String description;
     public double target;

@@ -13,6 +13,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 public class Event {
+    // Event object with read/write reentrant locks, allowing many reads but only a single write that bars any reading
+    // Also serializable for easy transmission to client
     private final ReentrantReadWriteLock rwIdLock = new ReentrantReadWriteLock();
     private final Lock readIdLock = rwIdLock.readLock();
     private final int id;

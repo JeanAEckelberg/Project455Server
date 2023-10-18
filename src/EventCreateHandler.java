@@ -1,11 +1,8 @@
-import java.text.ParseException;
-
 public class EventCreateHandler {
     public static Response handle(String requestBody) {
-        System.out.println("RequestBody: " + requestBody);
-        WriteJsonObject json = new WriteJsonObject();
+        // handles creation of new events
         try {
-            CreateEventRequest EventInfo = json.deserialize(requestBody, CreateEventRequest.class);
+            CreateEventRequest EventInfo = Json.deserialize(requestBody, CreateEventRequest.class);
             Event event = new Event(
                     0,
                     EventInfo.title,
@@ -15,7 +12,7 @@ public class EventCreateHandler {
                     EventInfo.deadline
             );
             event = Events.createEvent(event);
-            return new Response(ResponseType.EVENT, json.serialize(event));
+            return new Response(ResponseType.EVENT, Json.serialize(event));
         } catch (Exception e){
             return new Response(ResponseType.ERROR, e.getMessage());
         }

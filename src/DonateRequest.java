@@ -2,6 +2,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DonateRequest {
+    // request object for donations/deposits
     public double amount;
     public int eventid;
 

@@ -2,6 +2,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Request {
+    // request object sent from the client to the server and give serialization/deserialization support
     public RequestType requestType;
     public String requestBody;
 

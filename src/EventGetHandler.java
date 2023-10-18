@@ -1,10 +1,10 @@
 public class EventGetHandler {
     public static Response handle(String requestBody){
-        WriteJsonObject json = new WriteJsonObject();
+        // handles getting an event
         try{
-        EventRequest eventRequest = json.deserialize(requestBody, EventRequest.class);
+        EventRequest eventRequest = Json.deserialize(requestBody, EventRequest.class);
         Event event = Events.getEvent(eventRequest.eventId);
-        return new Response(ResponseType.EVENT, json.serialize(event));
+        return new Response(ResponseType.EVENT, Json.serialize(event));
         } catch (Exception e){
             return new Response(ResponseType.ERROR, e.getMessage());
         }

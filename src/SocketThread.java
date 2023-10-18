@@ -11,16 +11,23 @@ public class SocketThread extends Thread {
 
     public void run() {
         try {
-
+            // Sets up reader for client input, the json serializer and deserializer, and the outbound writer
             BufferedReader inFromClient = new BufferedReader(new InputStreamReader(this.csocket.getInputStream()));
 
-            WriteJsonObject json = new WriteJsonObject();
 
             DataOutputStream outToClient = new DataOutputStream(this.csocket.getOutputStream());
 
             while ((clientSentence = inFromClient.readLine()) != null) {
+                // takes client input line until a \n character and creates a request object from the json string
                 System.out.println("Input from client: " + clientSentence);
-                Request request = json.deserialize(clientSentence, Request.class);
+                Request request = Json.deserialize(clientSentence, Request.class);
+
+                // creates a None request if no request is parsable
+                if (request == null)
+                    request = new Request(RequestType.NONE, "");
+
+
+                // sends the appropriate requests to the right handlers and returns a response object from them
                 System.out.println("Request Type: " + request.requestType);
                 Response returnResponse = switch (request.requestType){
                     case CREATE -> EventCreateHandler.handle(request.requestBody);
@@ -28,19 +35,22 @@ public class SocketThread extends Thread {
                     case EVENTS -> EventGetAllHandler.handle();
                     case DONATE -> DepositHandler.handle(request.requestBody);
                     case UPDATE -> EventUpdateHandler.handle(request.requestBody);
-                    default -> new Response(ResponseType.ERROR, "No Handler present!!!");
+                    case NONE -> new Response(ResponseType.ERROR, "Invalid request format!");
                 };
+
+                // differentiates errors from standard logging and sends response to user
                 if(returnResponse.responseType == ResponseType.ERROR){
                     System.err.println("ERROR: " + returnResponse.responseBody);
                 } else{
                     System.out.println("RETURNING: " + returnResponse.responseBody);
                 }
-                outToClient.writeBytes(json.serialize(returnResponse)+'\n');
+                outToClient.writeBytes(Json.serialize(returnResponse)+'\n');
             }
 
             csocket.close();
         } catch (Exception e) {
-            System.err.println(e);
+            // writes error in case of connection or critical failure
+            System.err.println(e.getMessage());
         }
     }
 }
