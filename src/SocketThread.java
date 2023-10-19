@@ -29,14 +29,7 @@ public class SocketThread extends Thread {
 
                 // sends the appropriate requests to the right handlers and returns a response object from them
                 System.out.println("Request Type: " + request.requestType);
-                Response returnResponse = switch (request.requestType){
-                    case CREATE -> EventCreateHandler.handle(request.requestBody);
-                    case EVENT -> EventGetHandler.handle(request.requestBody);
-                    case EVENTS -> EventGetAllHandler.handle();
-                    case DONATE -> DepositHandler.handle(request.requestBody);
-                    case UPDATE -> EventUpdateHandler.handle(request.requestBody);
-                    case NONE -> new Response(ResponseType.ERROR, "Invalid request format!");
-                };
+                Response returnResponse = request.requestType.handle(request.requestBody);
 
                 // differentiates errors from standard logging and sends response to user
                 if(returnResponse.responseType == ResponseType.ERROR){
