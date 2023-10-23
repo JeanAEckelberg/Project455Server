@@ -16,7 +16,6 @@ public class Main {
         try (ServerSocket socket = new ServerSocket(6789)) {
             System.out.println("The TCP server is on. Your IP is " + InetAddress.getLocalHost().getHostAddress());
 
-
             while (true) {
                 // Continuously waits for new connections and launches a new thread to handle the processing
                 System.out.println("Waiting for connections");
