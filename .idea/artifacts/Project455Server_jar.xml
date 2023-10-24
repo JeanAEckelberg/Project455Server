@@ -1,0 +1,18 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="Project455Server:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Project455Server_jar</output-path>
+    <root id="archive" name="Project455Server.jar">
+      <element id="module-output" name="Project455Server" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jackson-annotations-2.16.0-rc1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jackson-databind-2.15.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jackson-annotations-2.15.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jackson-core-2.15.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jackson-core-2.16.0-rc1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/sqlite-jdbc-3.43.0.0.jar" path-in-jar="/" />
+      <element id="library" level="project" name="xerial.sqlite.jdbc" />
+      <element id="library" level="project" name="fasterxml.jackson.core" />
+      <element id="library" level="project" name="fasterxml.jackson.core.annotations" />
+      <element id="library" level="project" name="fasterxml.jackson.core.databind" />
+    </root>
+  </artifact>
+</component>
