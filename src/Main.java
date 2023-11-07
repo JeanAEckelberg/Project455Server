@@ -1,9 +1,13 @@
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 
 
 public class Main {
     public static void main(String[] args) throws IOException {
+        byte[] receive = new byte[65535];
+
+        DatagramPacket DpReceive;
         // this will connect to a local db and create a new one if necessary
         if (Events.setUp())
             System.out.println("The Database is set up.");
@@ -13,15 +17,16 @@ public class Main {
         }
 
         // Opens the server to constantly listen for requests
-        try (ServerSocket socket = new ServerSocket(6789)) {
-            System.out.println("The TCP server is on. Your IP is " + InetAddress.getLocalHost().getHostAddress());
+        try (DatagramSocket socket = new DatagramSocket(6789)) {
+            System.out.println("The UDP server is on. Your IP is " + InetAddress.getLocalHost().getHostAddress());
 
             while (true) {
                 // Continuously waits for new connections and launches a new thread to handle the processing
                 System.out.println("Waiting for connections");
-                Socket connectionSocket = socket.accept();
-                System.out.println("Connection Accepted. IP is " + connectionSocket.getInetAddress().getHostAddress());
-                new SocketThread(connectionSocket).start();
+                DpReceive = new DatagramPacket(receive, receive.length);
+                socket.receive(DpReceive);
+                System.out.println("Connection Accepted. IP is " + DpReceive.getAddress());
+                new SocketThread(socket, new String(receive, StandardCharsets.UTF_8), DpReceive.getAddress(), DpReceive.getPort()).start();
             }
         }
     }
